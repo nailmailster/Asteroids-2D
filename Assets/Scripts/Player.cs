@@ -16,8 +16,6 @@ public class Player : MonoBehaviour
     float height;
     float width;
 
-    private BulletObjectPool _pool; //  значением будет добавленный компонент BulletObjectPool, будем использовать его Spawn() при выстрелах
-
     private void Awake()
     {
         playerRb = GetComponent<Rigidbody2D>();
@@ -28,7 +26,6 @@ public class Player : MonoBehaviour
 
     void Start()
     {
-        _pool = gameObject.AddComponent<BulletObjectPool>();
     }
 
     private void Update()
@@ -57,7 +54,14 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            _pool.Spawn(transform.position, transform.rotation, transform);
+            GameObject b = Pool.singleton.Get("Bullet");
+            if (b != null)
+            {
+                b.transform.position = transform.position;
+                b.transform.rotation = transform.rotation;
+                b.SetActive(true);
+                b.GetComponent<Bullet>().Fire();
+            }
         }
     }
 
@@ -77,20 +81,24 @@ public class Player : MonoBehaviour
 
     void CheckVisibility()
     {
-        if (transform.position.y > (height + .5f))
+        // if (transform.position.y > (height + .5f))
+        if (transform.position.y > (height + transform.lossyScale.y / 2))
         {
             transform.position = new Vector2(transform.position.x, -height);
         }
-        if (transform.position.y < -(height + 1))
+        // if (transform.position.y < -(height + 1))
+        if (transform.position.y < -(height + transform.lossyScale.y))
         {
             transform.position = new Vector2(transform.position.x, height);
         }
 
-        if (transform.position.x > (width + 1))
+        // if (transform.position.x > (width + 1))
+        if (transform.position.x > (width + transform.lossyScale.y))
         {
             transform.position = new Vector2(-width, transform.position.y);
         }
-        if (transform.position.x < -(width + 1))
+        // if (transform.position.x < -(width + 1))
+        if (transform.position.x < -(width + transform.lossyScale.y))
         {
             transform.position = new Vector2(width, transform.position.y);
         }

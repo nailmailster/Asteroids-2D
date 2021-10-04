@@ -36,8 +36,7 @@ public class BulletObjectPool : MonoBehaviour
         Bullet bullet = Instantiate(b);
 
         go.name = "Pool Bullet";
-        bullet.Pool = Pool;
-        // bullet.transform.up = playerTransform.up;
+        // bullet.Pool = Pool;
 
         return bullet;
     }
