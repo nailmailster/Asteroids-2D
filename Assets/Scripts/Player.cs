@@ -113,7 +113,14 @@ public class Player : MonoBehaviour
 
             gameObject.SetActive(false);
 
-            gameManager.DecreaseLives();
+            if (gameManager.DecreaseLives(this.gameObject) > 0)
+                Invoke("RespawnShip", 0.5f);
         }
+    }
+
+    void RespawnShip()
+    {
+        Debug.Log("RespawnShip");
+        gameObject.SetActive(true);
     }
 }

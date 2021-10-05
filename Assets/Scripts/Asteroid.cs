@@ -20,14 +20,21 @@ public class Asteroid : MonoBehaviour
         gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
     }
 
-    void Start()
+    private void OnEnable()
     {
-        float randomXPos = Random.Range(-screenHalfWidthInUnits, screenHalfWidthInUnits);
-        float randomYPos = Random.Range(-screenHalfHeightInUnits, screenHalfHeightInUnits);
-        Vector2 randomPos = new Vector2(randomXPos, randomYPos);
+        Vector2 randomPos = GenerateRandomPos();
+        transform.position = randomPos;
         Vector2 randomDirection = Random.insideUnitCircle.normalized;
         float randomSpeed = Random.Range(1, maxForce);
         asteroidRb.AddForce(randomDirection * randomSpeed, ForceMode2D.Impulse);
+    }
+
+    Vector2 GenerateRandomPos()
+    {
+        float randomXPos = Random.Range(-screenHalfWidthInUnits, screenHalfWidthInUnits);
+        float randomYPos = Random.Range(-screenHalfHeightInUnits, screenHalfHeightInUnits);
+
+        return new Vector2(randomXPos, randomYPos);
     }
 
     private void OnBecameInvisible()
@@ -47,7 +54,7 @@ public class Asteroid : MonoBehaviour
     {
         if (other.CompareTag("Bullet"))
         {
-            Destroy(gameObject);
+            gameObject.SetActive(false);
             other.gameObject.SetActive(false);
 
             gameManager.AddScore(20);

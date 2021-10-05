@@ -17,20 +17,6 @@ public class Pool : MonoBehaviour
 
     [SerializeField] GameObject parent;
 
-    public int ActiveBulletsAmount
-    {
-        get
-        {
-            int count = 0;
-
-            foreach (GameObject prefab in pooledItems)
-                if (prefab.CompareTag("Bullet") && prefab.activeInHierarchy)
-                    count++;
-
-            return count;
-        }
-    }
-
     private void Awake()
     {
         singleton = this;
@@ -46,6 +32,17 @@ public class Pool : MonoBehaviour
             }
         }
         return null;
+    }
+
+    public int CountActiveObjects(string tag)
+    {
+        int count = 0;
+
+        foreach (GameObject obj in pooledItems)
+            if (obj.activeInHierarchy && obj.CompareTag(tag))
+                count++;
+        
+        return count;
     }
 
     void Start()
