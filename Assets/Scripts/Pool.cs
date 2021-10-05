@@ -15,6 +15,8 @@ public class Pool : MonoBehaviour
     public List<PoolItem> items;
     public List<GameObject> pooledItems;
 
+    [SerializeField] GameObject parent;
+
     public int ActiveBulletsAmount
     {
         get
@@ -55,6 +57,7 @@ public class Pool : MonoBehaviour
             {
                 GameObject obj = Instantiate(item.prefab);
                 obj.SetActive(false);
+                obj.transform.SetParent(parent.transform);
                 pooledItems.Add(obj);
             }
         }

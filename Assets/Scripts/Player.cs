@@ -12,20 +12,20 @@ public class Player : MonoBehaviour
 
     float horizontalInput, verticalInput;
 
-    public static float screenHalfHeightInUnits;
-    public static float screenHalfWidthInUnits;
-
     int shotsMadeInInterval = 0;
     [SerializeField] float shotsInterval = 1;
     [SerializeField] int shotsLimit = 3;
+
+    [SerializeField] ParticleSystem burstVFX;
+
+    GameManager gameManager;
 
     private void Awake()
     {
         playerRb = GetComponent<Rigidbody2D>();
         colliderYBound = GetComponent<Collider2D>().bounds.extents.y;
 
-        screenHalfHeightInUnits = Camera.main.orthographicSize;
-        screenHalfWidthInUnits = screenHalfHeightInUnits * Screen.width / Screen.height;
+        gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
     }
 
     private void Update()
@@ -93,14 +93,27 @@ public class Player : MonoBehaviour
 
     void CheckVisibility()
     {
-        if (transform.position.y > (screenHalfHeightInUnits + 1/2))
-            transform.position = new Vector2(transform.position.x, -screenHalfHeightInUnits);
-        else if (transform.position.y < -(screenHalfHeightInUnits + 1))
-            transform.position = new Vector2(transform.position.x, screenHalfHeightInUnits);
+        if (transform.position.y > (GameManager.screenHalfHeightInUnits + 1/2))
+            transform.position = new Vector2(transform.position.x, -GameManager.screenHalfHeightInUnits);
+        else if (transform.position.y < -(GameManager.screenHalfHeightInUnits + 1))
+            transform.position = new Vector2(transform.position.x, GameManager.screenHalfHeightInUnits);
 
-        if (transform.position.x > (screenHalfWidthInUnits + 1))
-            transform.position = new Vector2(-screenHalfWidthInUnits, transform.position.y);
-        else if (transform.position.x < -(screenHalfWidthInUnits + 1))
-            transform.position = new Vector2(screenHalfWidthInUnits, transform.position.y);
+        if (transform.position.x > (GameManager.screenHalfWidthInUnits + 1))
+            transform.position = new Vector2(-GameManager.screenHalfWidthInUnits, transform.position.y);
+        else if (transform.position.x < -(GameManager.screenHalfWidthInUnits + 1))
+            transform.position = new Vector2(GameManager.screenHalfWidthInUnits, transform.position.y);
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Asteroid"))
+        {
+            burstVFX.transform.position = transform.position;
+            burstVFX.Play();
+
+            gameObject.SetActive(false);
+
+            gameManager.DecreaseLives();
+        }
     }
 }

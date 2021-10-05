@@ -15,15 +15,15 @@ public class Bullet : MonoBehaviour
         transform.Translate(Vector2.up * Player.colliderYBound, Space.Self);    //  сдвинем пулю в направлении выстрела за границу коллайдера корабля
         controlPoint = transform.position;                                      //  запомним положение пули в момент выстрела
 
-        bulletRb.AddRelativeForce(Vector2.up * speed, ForceMode2D.Impulse);   //  Fire!
+        bulletRb.AddRelativeForce(Vector2.up * speed, ForceMode2D.Impulse);     //  Bang!
     }
 
     private void Awake()
     {
         bulletRb = GetComponent<Rigidbody2D>();
 
-        screenHalfWidthInUnits = Player.screenHalfWidthInUnits;
-        screenHalfHeightInUnits = Player.screenHalfHeightInUnits;
+        screenHalfWidthInUnits = GameManager.screenHalfWidthInUnits;
+        screenHalfHeightInUnits = GameManager.screenHalfHeightInUnits;
 
         maxDistance = screenHalfWidthInUnits * 2;    //  максимальная дальность по условию = ширине экрана
     }
