@@ -16,6 +16,20 @@ public class Pool : MonoBehaviour
     public List<PoolItem> items;
     public List<GameObject> pooledItems;
 
+    public int ActiveBulletsAmount
+    {
+        get
+        {
+            int count = 0;
+
+            foreach (GameObject prefab in pooledItems)
+                if (prefab.CompareTag("Bullet") && prefab.activeInHierarchy)
+                    count++;
+
+            return count;
+        }
+    }
+
     private void Awake()
     {
         singleton = this;

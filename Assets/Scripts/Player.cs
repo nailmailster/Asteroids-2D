@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -13,6 +15,10 @@ public class Player : MonoBehaviour
 
     public static float screenHalfHeightInUnits;
     public static float screenHalfWidthInUnits;
+
+    int shotsMadeInInterval = 0;
+    [SerializeField] float shotsInterval = 1;
+    [SerializeField] int shotsLimit = 3;
 
     private void Awake()
     {
@@ -38,6 +44,15 @@ public class Player : MonoBehaviour
         CheckVisibility();
     }
 
+    IEnumerator Countdown(float seconds)
+    {
+        while (shotsMadeInInterval > 0)
+        {
+            yield return new WaitForSeconds(seconds);
+            shotsMadeInInterval = 0;
+        }
+    }
+
     void GetInput()
     {
         horizontalInput = Input.GetAxis("Horizontal");
@@ -47,13 +62,20 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            GameObject b = Pool.singleton.Get("Bullet");
-            if (b != null)
+            if (shotsMadeInInterval < shotsLimit)
             {
-                b.transform.position = transform.position;
-                b.transform.rotation = transform.rotation;
-                b.SetActive(true);
-                b.GetComponent<Bullet>().Fire();
+                GameObject b = Pool.singleton.Get("Bullet");
+                if (b != null)
+                {
+                    b.transform.position = transform.position;
+                    b.transform.rotation = transform.rotation;
+                    b.SetActive(true);
+                    b.GetComponent<Bullet>().Fire();
+
+                    shotsMadeInInterval++;
+                    if (shotsMadeInInterval == 1)
+                        StartCoroutine(Countdown(shotsInterval));
+                }
             }
         }
     }
@@ -74,12 +96,12 @@ public class Player : MonoBehaviour
     {
         if (transform.position.y > (screenHalfHeightInUnits + 1/2))
             transform.position = new Vector2(transform.position.x, -screenHalfHeightInUnits);
-        if (transform.position.y < -(screenHalfHeightInUnits + 1))
+        else if (transform.position.y < -(screenHalfHeightInUnits + 1))
             transform.position = new Vector2(transform.position.x, screenHalfHeightInUnits);
 
         if (transform.position.x > (screenHalfWidthInUnits + 1))
             transform.position = new Vector2(-screenHalfWidthInUnits, transform.position.y);
-        if (transform.position.x < -(screenHalfWidthInUnits + 1))
+        else if (transform.position.x < -(screenHalfWidthInUnits + 1))
             transform.position = new Vector2(screenHalfWidthInUnits, transform.position.y);
     }
 }

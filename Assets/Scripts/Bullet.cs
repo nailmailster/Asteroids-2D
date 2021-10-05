@@ -25,7 +25,7 @@ public class Bullet : MonoBehaviour
         screenHalfWidthInUnits = Player.screenHalfWidthInUnits;
         screenHalfHeightInUnits = Player.screenHalfHeightInUnits;
 
-        maxDistance = screenHalfWidthInUnits * 2;    //  максимальное расстояние по условию = ширине экрана
+        maxDistance = screenHalfWidthInUnits * 2;    //  максимальная дальность по условию = ширине экрана
     }
 
     void Update()
