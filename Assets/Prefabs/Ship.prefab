@@ -73,7 +73,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 3625043607559282579, guid: 19fb86013d8c24d6cb8410c0aadf30fa, type: 3}
-  m_Color: {r: 0.3445621, g: 0.8207547, b: 0.7842717, a: 1}
+  m_Color: {r: 0.09376113, g: 0.4056604, b: 0.21745458, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -156,7 +156,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0.3445621, g: 0.8207547, b: 0.7842717, a: 1}
+  m_Color: {r: 0.09376113, g: 0.4056604, b: 0.21745458, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -277,7 +277,6 @@ MonoBehaviour:
   thrustForce: 100
   maxSpeed: 5
   torqueForce: 100
-  bullet: {fileID: 2990420064064802756, guid: b51e9c4b0a2d0d848a67543fdf879dcf, type: 3}
 --- !u!1 &1677046735565569459
 GameObject:
   m_ObjectHideFlags: 0
@@ -351,7 +350,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 3625043607559282579, guid: 19fb86013d8c24d6cb8410c0aadf30fa, type: 3}
-  m_Color: {r: 0.3445621, g: 0.8207547, b: 0.7842717, a: 1}
+  m_Color: {r: 0.09376113, g: 0.4056604, b: 0.21745458, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -434,7 +433,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 3625043607559282579, guid: 19fb86013d8c24d6cb8410c0aadf30fa, type: 3}
-  m_Color: {r: 0.3445621, g: 0.8207547, b: 0.7842717, a: 1}
+  m_Color: {r: 0.09376113, g: 0.4056604, b: 0.21745458, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

@@ -1,10 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
     Rigidbody2D playerRb;
+    public static float colliderYBound;
 
     [SerializeField] float thrustForce = 150;
     [SerializeField] float maxSpeed = 5;
@@ -12,20 +11,16 @@ public class Player : MonoBehaviour
 
     float horizontalInput, verticalInput;
 
-    // [SerializeField] GameObject bullet;
-    float height;
-    float width;
+    public static float screenHalfHeightInUnits;
+    public static float screenHalfWidthInUnits;
 
     private void Awake()
     {
         playerRb = GetComponent<Rigidbody2D>();
+        colliderYBound = GetComponent<Collider2D>().bounds.extents.y;
 
-        height = Camera.main.orthographicSize;
-        width = height * Screen.width / Screen.height;
-    }
-
-    void Start()
-    {
+        screenHalfHeightInUnits = Camera.main.orthographicSize;
+        screenHalfWidthInUnits = screenHalfHeightInUnits * Screen.width / Screen.height;
     }
 
     private void Update()
@@ -48,9 +43,7 @@ public class Player : MonoBehaviour
         horizontalInput = Input.GetAxis("Horizontal");
         verticalInput = Input.GetAxis("Vertical");
         if (verticalInput < 0)
-        {
             verticalInput = 0;
-        }
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -71,9 +64,7 @@ public class Player : MonoBehaviour
         {
             playerRb.AddForce(transform.up * verticalInput * thrustForce * Time.fixedDeltaTime);
             if (playerRb.velocity.magnitude > maxSpeed)
-            {
                 playerRb.velocity = Vector2.ClampMagnitude(playerRb.velocity, maxSpeed);
-            }
         }
 
         playerRb.AddTorque(horizontalInput * -torqueForce * Time.fixedDeltaTime);
@@ -81,26 +72,14 @@ public class Player : MonoBehaviour
 
     void CheckVisibility()
     {
-        // if (transform.position.y > (height + .5f))
-        if (transform.position.y > (height + transform.lossyScale.y / 2))
-        {
-            transform.position = new Vector2(transform.position.x, -height);
-        }
-        // if (transform.position.y < -(height + 1))
-        if (transform.position.y < -(height + transform.lossyScale.y))
-        {
-            transform.position = new Vector2(transform.position.x, height);
-        }
+        if (transform.position.y > (screenHalfHeightInUnits + 1/2))
+            transform.position = new Vector2(transform.position.x, -screenHalfHeightInUnits);
+        if (transform.position.y < -(screenHalfHeightInUnits + 1))
+            transform.position = new Vector2(transform.position.x, screenHalfHeightInUnits);
 
-        // if (transform.position.x > (width + 1))
-        if (transform.position.x > (width + transform.lossyScale.y))
-        {
-            transform.position = new Vector2(-width, transform.position.y);
-        }
-        // if (transform.position.x < -(width + 1))
-        if (transform.position.x < -(width + transform.lossyScale.y))
-        {
-            transform.position = new Vector2(width, transform.position.y);
-        }
+        if (transform.position.x > (screenHalfWidthInUnits + 1))
+            transform.position = new Vector2(-screenHalfWidthInUnits, transform.position.y);
+        if (transform.position.x < -(screenHalfWidthInUnits + 1))
+            transform.position = new Vector2(screenHalfWidthInUnits, transform.position.y);
     }
 }
