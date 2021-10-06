@@ -20,6 +20,8 @@ public class Player : MonoBehaviour
 
     GameManager gameManager;
 
+    bool isUndestroyable;
+
     private void Awake()
     {
         playerRb = GetComponent<Rigidbody2D>();
@@ -106,21 +108,51 @@ public class Player : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Asteroid"))
+        if (!isUndestroyable)
         {
-            burstVFX.transform.position = transform.position;
-            burstVFX.Play();
+            if (other.CompareTag("Asteroid"))
+            {
+                burstVFX.transform.position = transform.position;
+                burstVFX.Play();
 
-            gameObject.SetActive(false);
+                gameObject.SetActive(false);
 
-            if (gameManager.DecreaseLives(this.gameObject) > 0)
-                Invoke("RespawnShip", 0.5f);
+                if (gameManager.DecreaseLives(this.gameObject) > 0)
+                {
+                    // Invoke("RespawnShip", 2.5f);
+
+                    gameObject.transform.position = gameManager.GenerateRandomPos();
+                    gameObject.SetActive(true);
+                    StartCoroutine(Spawn());
+                }
+            }
         }
     }
 
-    void RespawnShip()
+    public IEnumerator Spawn()
     {
-        Debug.Log("RespawnShip");
-        gameObject.SetActive(true);
+        isUndestroyable = true;
+        Component[] childrenRenderers = gameObject.GetComponentsInChildren<SpriteRenderer>();
+        Color color;
+
+        for (int i = 0; i < 6; i++)
+        {
+            yield return new WaitForSeconds(.25f);
+            foreach (Renderer renderer in childrenRenderers)
+            {
+                color = renderer.material.color;
+                color.a = 0f;
+                renderer.material.color = color;
+            }
+            yield return new WaitForSeconds(.25f);
+            foreach (Renderer renderer in childrenRenderers)
+            {
+                color = renderer.material.color;
+                color.a = 0.5f;
+                renderer.material.color = color;
+            }
+        }
+
+        isUndestroyable = false;
     }
 }

@@ -22,19 +22,11 @@ public class Asteroid : MonoBehaviour
 
     private void OnEnable()
     {
-        Vector2 randomPos = GenerateRandomPos();
+        Vector2 randomPos = gameManager.GenerateRandomPos();
         transform.position = randomPos;
         Vector2 randomDirection = Random.insideUnitCircle.normalized;
         float randomSpeed = Random.Range(1, maxForce);
         asteroidRb.AddForce(randomDirection * randomSpeed, ForceMode2D.Impulse);
-    }
-
-    Vector2 GenerateRandomPos()
-    {
-        float randomXPos = Random.Range(-screenHalfWidthInUnits, screenHalfWidthInUnits);
-        float randomYPos = Random.Range(-screenHalfHeightInUnits, screenHalfHeightInUnits);
-
-        return new Vector2(randomXPos, randomYPos);
     }
 
     private void OnBecameInvisible()
