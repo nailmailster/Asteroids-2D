@@ -16,7 +16,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &857758406
 Transform:
   m_ObjectHideFlags: 0
@@ -260,11 +260,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa8bedfaf713e0947bc51ae8bd7891f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxForce: 7
-  size: 0
+  calibre: 0
   initPos: {x: 0, y: 0, z: 0}
-  initDir: {x: 0, y: 0, z: 0}
-  initSpeed: 0
+  direction: {x: 0, y: 0, z: 0}
+  initForce: 0
+  velocity: {x: 0, y: 0}
+  burstVFX: {fileID: 5962928442545056735, guid: 7996b728febb7844b9ab2056ebd388be, type: 3}
 --- !u!50 &2354903553371243896
 Rigidbody2D:
   serializedVersion: 4

@@ -21,6 +21,8 @@ public class Asteroid : MonoBehaviour
     public Vector3 direction;
     public float initForce;
 
+    public Vector2 velocity;
+
     GameManager gameManager;
 
     private void Awake()
@@ -33,7 +35,10 @@ public class Asteroid : MonoBehaviour
     private void OnEnable()
     {
         transform.position = initPos;
-        asteroidRb.AddRelativeForce(direction * initForce, ForceMode2D.Impulse);
+        if (calibre == AsteroidsCalibre.Large)
+            asteroidRb.AddForce(direction * initForce, ForceMode2D.Impulse);
+        else
+            asteroidRb.velocity = velocity * initForce;
     }
 
     private void OnBecameInvisible()
@@ -45,11 +50,11 @@ public class Asteroid : MonoBehaviour
     {
         if (other.CompareTag("Bullet"))
         {
+            other.gameObject.SetActive(false);
+            Vector2 velocity = GetComponent<Rigidbody2D>().velocity;
             gameObject.SetActive(false);
 
-            other.gameObject.SetActive(false);
-
-            gameManager.AddScore(gameObject);
+            gameManager.AddScore(gameObject, velocity);
         }
     }
 }

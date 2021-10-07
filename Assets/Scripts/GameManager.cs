@@ -47,6 +47,8 @@ public class GameManager : MonoBehaviour
 
     public bool isGameOver = false;
 
+    [SerializeField] ParticleSystem burstVFX;
+
     private void Awake()
     {
         playerRb = player.GetComponent<Rigidbody2D>();
@@ -120,12 +122,13 @@ public class GameManager : MonoBehaviour
         newGameButton.gameObject.SetActive(true);
     }
 
-    public void AddScore(GameObject parentAsteroid)
+    public void AddScore(GameObject parentAsteroid, Vector2 parentVelocity)
     {
+        burstVFX.transform.position = parentAsteroid.transform.position;
+        burstVFX.Play();
+
         Asteroid parentScript = parentAsteroid.GetComponent<Asteroid>();
         score += (int)parentScript.calibre;
-
-        float initSpeed = Random.Range(1, Asteroid.maxForce);
 
         if (parentScript.calibre == AsteroidsCalibre.Small)
         {
@@ -135,27 +138,126 @@ public class GameManager : MonoBehaviour
                 StartLevel();
             }
         }
-        else if (parentScript.calibre == AsteroidsCalibre.Large)
+        else
         {
-            // SpawnAsteroid(AsteroidsCalibre.Medium, initSpeed, parentScript, false, false, -Asteroid.deflectionAngle);
-            // SpawnAsteroid(AsteroidsCalibre.Medium, initSpeed, parentScript, false, false, Asteroid.deflectionAngle * 2);
-            // // SpawnAsteroid(AsteroidSize.Medium, initSpeed, parentAsteroid, false, false, -parentAsteroid.deflectionAngle);
-
-
-            SpawnAsteroid(AsteroidsCalibre.Medium, initSpeed, parentScript, false, false, Asteroid.deflectionAngle);
-            SpawnAsteroid(AsteroidsCalibre.Medium, initSpeed, parentScript, false, false, -Asteroid.deflectionAngle * 2);
+            AsteroidsCalibre parentCalibre = parentScript.calibre;
+            float speed = Random.Range(1, Asteroid.maxForce);
+            SpawnFractionAsteroid(parentAsteroid, parentScript, parentVelocity, 45, parentCalibre, speed);
+            SpawnFractionAsteroid(parentAsteroid, parentScript, parentVelocity, -45, parentCalibre, speed);
         }
-        else if (parentScript.calibre == AsteroidsCalibre.Medium)
+
+        #region comment 1
+        // else if (parentScript.calibre == AsteroidsCalibre.Large)
+        // {
+        //     // SpawnAsteroid(AsteroidsCalibre.Medium, initSpeed, parentScript, false, false, -Asteroid.deflectionAngle);
+        //     // SpawnAsteroid(AsteroidsCalibre.Medium, initSpeed, parentScript, false, false, Asteroid.deflectionAngle * 2);
+        //     // // SpawnAsteroid(AsteroidSize.Medium, initSpeed, parentAsteroid, false, false, -parentAsteroid.deflectionAngle);
+
+
+        //     float initSpeed = Random.Range(1, Asteroid.maxForce);
+        //     SpawnAsteroid(AsteroidsCalibre.Medium, initSpeed, parentScript, false, false, Asteroid.deflectionAngle);
+        //     SpawnAsteroid(AsteroidsCalibre.Medium, initSpeed, parentScript, false, false, -Asteroid.deflectionAngle * 2);
+        // }
+        // else if (parentScript.calibre == AsteroidsCalibre.Medium)
+        // {
+        //     // SpawnAsteroid(AsteroidsCalibre.Small, initSpeed, parentScript, false, false, -Asteroid.deflectionAngle);
+        //     // SpawnAsteroid(AsteroidsCalibre.Small, initSpeed, parentScript, false, false, Asteroid.deflectionAngle * 2);
+        //     // // SpawnAsteroid(AsteroidSize.Small, initSpeed, parentAsteroid, false, false, -parentAsteroid.deflectionAngle);
+
+
+        //     float initSpeed = Random.Range(1, Asteroid.maxForce);
+        //     SpawnAsteroid(AsteroidsCalibre.Small, initSpeed, parentScript, false, false, Asteroid.deflectionAngle);
+        //     SpawnAsteroid(AsteroidsCalibre.Small, initSpeed, parentScript, false, false, -Asteroid.deflectionAngle * 2);
+        // }
+        #endregion
+    }
+
+    void SpawnFractionAsteroid(GameObject parentObject, Asteroid parentScript, Vector2 parentVelocity, float angle, AsteroidsCalibre parentCalibre, float newForce)
+    {
+        GameObject newObject = Pool.singleton.Get("Asteroid");
+        if (newObject != null)
         {
-            // SpawnAsteroid(AsteroidsCalibre.Small, initSpeed, parentScript, false, false, -Asteroid.deflectionAngle);
-            // SpawnAsteroid(AsteroidsCalibre.Small, initSpeed, parentScript, false, false, Asteroid.deflectionAngle * 2);
-            // // SpawnAsteroid(AsteroidSize.Small, initSpeed, parentAsteroid, false, false, -parentAsteroid.deflectionAngle);
+            Asteroid newObjectScript = newObject.GetComponent<Asteroid>();
 
+            Debug.Log(parentCalibre);
+            if (parentCalibre == AsteroidsCalibre.Large)
+            {
+                newObjectScript.calibre = AsteroidsCalibre.Medium;
+                newObjectScript.transform.localScale = new Vector3(6, 6, 1);
+            }
+            else if (parentCalibre == AsteroidsCalibre.Medium)
+            {
+                newObjectScript.calibre = AsteroidsCalibre.Small;
+                newObjectScript.transform.localScale = new Vector3(4, 4, 1);
+            }
 
-            SpawnAsteroid(AsteroidsCalibre.Small, initSpeed, parentScript, false, false, Asteroid.deflectionAngle);
-            SpawnAsteroid(AsteroidsCalibre.Small, initSpeed, parentScript, false, false, -Asteroid.deflectionAngle * 2);
+            newObjectScript.initPos = parentObject.transform.position;
+            newObject.transform.position = parentObject.transform.position;
+
+            newObjectScript.initForce = newForce;
+
+            newObjectScript.velocity = transform.InverseTransformDirection(parentVelocity);
+            newObjectScript.velocity = (Quaternion.Euler(0, 0, angle) * newObjectScript.velocity).normalized;
+
+            newObject.SetActive(true);
         }
     }
+
+    #region comment2
+    // void SpawnAsteroid(AsteroidsCalibre size, float newForce = 0, Asteroid parentScript = null, bool randomPos = true, bool randomDir = true, float angle = 0)
+    // {
+    //     GameObject a = Pool.singleton.Get("Asteroid");
+    //     if (a != null)
+    //     {
+    //         Asteroid newAsteroid = a.GetComponent<Asteroid>();
+
+    //         if (size == AsteroidsCalibre.Large)
+    //             a.transform.localScale = new Vector3(8, 8, 1);
+    //         else if (size == AsteroidsCalibre.Medium)
+    //             a.transform.localScale = new Vector3(6, 6, 1);
+    //         else if (size == AsteroidsCalibre.Small)
+    //             a.transform.localScale = new Vector3(4, 4, 1);
+
+    //         newAsteroid.calibre = size;
+
+    //         if (randomPos)
+    //         {
+    //             newAsteroid.initPos = GenerateRandomPos();
+    //         }
+    //         else
+    //         {
+    //             newAsteroid.initPos = parentScript.transform.position;
+
+    //             a.transform.position = parentScript.transform.position;
+    //             a.transform.rotation = parentScript.transform.rotation;
+    //         }
+
+    //         if (randomDir)
+    //             newAsteroid.direction = Random.insideUnitCircle.normalized;
+    //         else
+    //         {
+    //             Debug.Log("parentAsteroid before = " + parentScript.direction);
+    //             Debug.Log("newAsteroid before = " + newAsteroid.direction);
+
+    //             Vector3 parentDir = new Vector3(parentScript.direction.x, parentScript.direction.y, parentScript.direction.z);
+    //             // newAsteroid.initDir = ((Vector2)parentDir).Rotate(angle).normalized;
+    //             // newAsteroid.initDir = ((Vector2)parentAsteroid.initDir).Rotate(angle).normalized;
+    //             // newAsteroid.initDir = (Quaternion.Euler(0, 0, angle) * parentAsteroid.initDir).normalized;
+    //             newAsteroid.direction = (Quaternion.Euler(0, 0, angle) * parentDir).normalized;
+
+    //             Debug.Log("parentAsteroid after = " + parentScript.direction);
+    //             Debug.Log("newAsteroid after = " + newAsteroid.direction);
+    //         }
+            
+    //         if (newForce > 0)
+    //             newAsteroid.initForce = newForce;
+    //         else
+    //             newAsteroid.initForce = Random.Range(1, Asteroid.maxForce);
+
+    //         a.SetActive(true);
+    //     }
+    // }
+    #endregion
 
     void SpawnRandomAsteroid(AsteroidsCalibre calibre)
     {
@@ -174,58 +276,6 @@ public class GameManager : MonoBehaviour
             newAsteroid.initPos = GenerateRandomPos();
             newAsteroid.direction = Random.insideUnitCircle.normalized;
             newAsteroid.initForce = Random.Range(1, Asteroid.maxForce);
-
-            a.SetActive(true);
-        }
-    }
-
-    void SpawnChildAsteroids()
-    {
-
-    }
-
-    void SpawnAsteroid(AsteroidsCalibre size, float newForce = 0, Asteroid parentScript = null, bool randomPos = true, bool randomDir = true, float angle = 0)
-    {
-        GameObject a = Pool.singleton.Get("Asteroid");
-        if (a != null)
-        {
-            Asteroid newAsteroid = a.GetComponent<Asteroid>();
-
-            if (size == AsteroidsCalibre.Large)
-                a.transform.localScale = new Vector3(8, 8, 1);
-            else if (size == AsteroidsCalibre.Medium)
-                a.transform.localScale = new Vector3(6, 6, 1);
-            else if (size == AsteroidsCalibre.Small)
-                a.transform.localScale = new Vector3(4, 4, 1);
-
-            newAsteroid.calibre = size;
-
-            if (randomPos)
-                newAsteroid.initPos = GenerateRandomPos();
-            else
-                newAsteroid.initPos = parentScript.transform.position;
-
-            if (randomDir)
-                newAsteroid.direction = Random.insideUnitCircle.normalized;
-            else
-            {
-                Debug.Log("parentAsteroid before = " + parentScript.direction);
-                Debug.Log("newAsteroid before = " + newAsteroid.direction);
-
-                Vector3 parentDir = new Vector3(parentScript.direction.x, parentScript.direction.y, parentScript.direction.z);
-                // newAsteroid.initDir = ((Vector2)parentDir).Rotate(angle).normalized;
-                // newAsteroid.initDir = ((Vector2)parentAsteroid.initDir).Rotate(angle).normalized;
-                // newAsteroid.initDir = (Quaternion.Euler(0, 0, angle) * parentAsteroid.initDir).normalized;
-                newAsteroid.direction = (Quaternion.Euler(0, 0, angle) * parentDir).normalized;
-
-                Debug.Log("parentAsteroid after = " + parentScript.direction);
-                Debug.Log("newAsteroid after = " + newAsteroid.direction);
-            }
-            
-            if (newForce > 0)
-                newAsteroid.initForce = newForce;
-            else
-                newAsteroid.initForce = Random.Range(1, Asteroid.maxForce);
 
             a.SetActive(true);
         }
