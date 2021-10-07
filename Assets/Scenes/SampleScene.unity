@@ -282,13 +282,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61da5c5306680ae489d3e89ca895e51a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lives: 3
+  initLives: 100
   livesText: {fileID: 1471485815}
   scoreText: {fileID: 678785627}
   gameOverText: {fileID: 0}
   newGameButton: {fileID: 1815480484}
   resumeGameButton: {fileID: 553805198}
   player: {fileID: 3152714282684364001}
+  startingAsteroidsAmount: 2
   isGameOver: 1
 --- !u!1 &519420028
 GameObject:

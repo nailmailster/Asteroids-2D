@@ -2,11 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public enum AsteroidsCalibre
+{
+    Large = 20,
+    Medium = 50,
+    Small = 100
+}
+
 public class Asteroid : MonoBehaviour
 {
     Rigidbody2D asteroidRb;
-    [SerializeField] float maxForce = 7;
-    public int rewardValue = 20;
+    public static float maxForce = 7;
+    public AsteroidsCalibre calibre;
+    public static float deflectionAngle = 45;
+
+    public Vector3 initPos;
+    public Vector3 direction;
+    public float initForce;
 
     GameManager gameManager;
 
@@ -14,23 +27,13 @@ public class Asteroid : MonoBehaviour
     {
         asteroidRb = GetComponent<Rigidbody2D>();
 
-        // if (rewardValue == 20)
-        //     transform.localScale = new Vector3(8, 8, 1);
-        // else if (rewardValue == 50)
-        //     transform.localScale = new Vector3(4, 4, 1);
-        // else if (rewardValue == 100)
-        //     transform.localScale = new Vector3(2, 2, 1);
-
         gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
     }
 
     private void OnEnable()
     {
-        Vector2 randomPos = gameManager.GenerateRandomPos();
-        transform.position = randomPos;
-        Vector2 randomDirection = Random.insideUnitCircle.normalized;
-        float randomSpeed = Random.Range(1, maxForce);
-        asteroidRb.AddForce(randomDirection * randomSpeed, ForceMode2D.Impulse);
+        transform.position = initPos;
+        asteroidRb.AddRelativeForce(direction * initForce, ForceMode2D.Impulse);
     }
 
     private void OnBecameInvisible()
@@ -43,9 +46,10 @@ public class Asteroid : MonoBehaviour
         if (other.CompareTag("Bullet"))
         {
             gameObject.SetActive(false);
+
             other.gameObject.SetActive(false);
 
-            gameManager.AddScore(rewardValue);
+            gameManager.AddScore(gameObject);
         }
     }
 }
