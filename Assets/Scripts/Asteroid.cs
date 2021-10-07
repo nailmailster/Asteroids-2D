@@ -5,8 +5,8 @@ using UnityEngine;
 public class Asteroid : MonoBehaviour
 {
     Rigidbody2D asteroidRb;
-    float screenHalfWidthInUnits, screenHalfHeightInUnits;  //  границы видимости
     [SerializeField] float maxForce = 7;
+    public int rewardValue = 20;
 
     GameManager gameManager;
 
@@ -14,8 +14,12 @@ public class Asteroid : MonoBehaviour
     {
         asteroidRb = GetComponent<Rigidbody2D>();
 
-        screenHalfWidthInUnits = GameManager.screenHalfWidthInUnits;
-        screenHalfHeightInUnits = GameManager.screenHalfHeightInUnits;
+        // if (rewardValue == 20)
+        //     transform.localScale = new Vector3(8, 8, 1);
+        // else if (rewardValue == 50)
+        //     transform.localScale = new Vector3(4, 4, 1);
+        // else if (rewardValue == 100)
+        //     transform.localScale = new Vector3(2, 2, 1);
 
         gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
     }
@@ -31,15 +35,7 @@ public class Asteroid : MonoBehaviour
 
     private void OnBecameInvisible()
     {
-        if (transform.position.y > screenHalfHeightInUnits)
-            transform.position = new Vector2(transform.position.x, -screenHalfHeightInUnits);
-        else if (transform.position.y < -screenHalfHeightInUnits)
-            transform.position = new Vector2(transform.position.x, screenHalfHeightInUnits);
-
-        if (transform.position.x > screenHalfWidthInUnits)
-            transform.position = new Vector2(-screenHalfWidthInUnits, transform.position.y);
-        else if (transform.position.x < -screenHalfWidthInUnits)
-            transform.position = new Vector2(screenHalfWidthInUnits, transform.position.y);
+        gameManager.InvisibilityHandling(transform);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -49,7 +45,7 @@ public class Asteroid : MonoBehaviour
             gameObject.SetActive(false);
             other.gameObject.SetActive(false);
 
-            gameManager.AddScore(20);
+            gameManager.AddScore(rewardValue);
         }
     }
 }

@@ -4,6 +4,13 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 
+public enum AsteroidSize
+{
+    Large = 20,
+    Medium = 50,
+    Small = 100
+}
+
 public class GameManager : MonoBehaviour
 {
     [SerializeField] int lives = 3;
@@ -19,8 +26,7 @@ public class GameManager : MonoBehaviour
     Vector2 playerVelocity;
     float playerAngularVelocity;
 
-    public static float screenHalfHeightInUnits;
-    public static float screenHalfWidthInUnits;
+    public static float screenHalfHeightInUnits, screenHalfWidthInUnits;    //  границы экрана
 
     int startingAsteroidsAmount = 2;
 
@@ -37,28 +43,19 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape) && !isGameOver)
-        {
             PauseGame();
-        }
     }
 
     private void OnGUI()
     {
         livesText.SetText("Попыток: " + lives);
-        scoreText.SetText("Наград: " + score);
+        scoreText.SetText("Баллов: " + score);
     }
 
     void PauseGame()
     {
         resumeGameButton.gameObject.SetActive(true);
         newGameButton.gameObject.SetActive(true);
-
-        // playerVelocity = playerRb.velocity;
-        // playerRb.velocity = Vector2.zero;
-        // playerAngularVelocity = playerRb.angularVelocity;
-        // playerRb.angularVelocity = 0;
-
-        // Pool.singleton.FreezeActiveObjects();
 
         Time.timeScale = 0;
     }
@@ -68,11 +65,6 @@ public class GameManager : MonoBehaviour
         resumeGameButton.gameObject.SetActive(false);
         newGameButton.gameObject.SetActive(false);
 
-        // playerRb.velocity = playerVelocity;
-        // playerRb.angularVelocity = playerAngularVelocity;
-
-        // Pool.singleton.UnfreezeActiveObjects();
-
         Time.timeScale = 1;
     }
 
@@ -81,6 +73,7 @@ public class GameManager : MonoBehaviour
         isGameOver = false;
         startingAsteroidsAmount = 2;
         lives = 3;
+        score = 0;
         newGameButton.gameObject.SetActive(false);
         resumeGameButton.gameObject.SetActive(false);
         Pool.singleton.DeactivateAllActiveObjects();
@@ -89,6 +82,8 @@ public class GameManager : MonoBehaviour
 
     void StartLevel()
     {
+        player.gameObject.transform.position = GenerateRandomPos();
+        playerRb.velocity = Vector2.zero;
         player.gameObject.SetActive(true);
         StartCoroutine(player.GetComponent<Player>().Spawn());
 
@@ -107,13 +102,17 @@ public class GameManager : MonoBehaviour
     void GameOver()
     {
         isGameOver = true;
-        Pool.singleton.FreezeActiveObjects();
         newGameButton.gameObject.SetActive(true);
     }
 
     public void AddScore(int value)
     {
         score += value;
+        if (Pool.singleton.ActiveObjectsCount("Asteroid") == 0)
+        {
+            startingAsteroidsAmount++;
+            StartLevel();
+        }
     }
 
     void SpawnAsteroid()
@@ -129,5 +128,18 @@ public class GameManager : MonoBehaviour
         float randomYPos = Random.Range(-screenHalfHeightInUnits, screenHalfHeightInUnits);
 
         return new Vector2(randomXPos, randomYPos);
+    }
+
+    public void InvisibilityHandling(Transform _transform)
+    {
+        if (_transform.position.y > screenHalfHeightInUnits)
+            _transform.position = new Vector2(_transform.position.x, -screenHalfHeightInUnits);
+        else if (_transform.position.y < -screenHalfHeightInUnits)
+            _transform.position = new Vector2(_transform.position.x, screenHalfHeightInUnits);
+
+        if (_transform.position.x > screenHalfWidthInUnits)
+            _transform.position = new Vector2(-screenHalfWidthInUnits, _transform.position.y);
+        else if (_transform.position.x < -screenHalfWidthInUnits)
+            _transform.position = new Vector2(screenHalfWidthInUnits, _transform.position.y);
     }
 }

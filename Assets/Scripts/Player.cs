@@ -117,10 +117,11 @@ public class Player : MonoBehaviour
 
                 gameObject.SetActive(false);
 
+                StopCoroutine("Countdown");
+                shotsMadeInInterval = 0;
+
                 if (gameManager.DecreaseLives(this.gameObject) > 0)
                 {
-                    // Invoke("RespawnShip", 2.5f);
-
                     gameObject.transform.position = gameManager.GenerateRandomPos();
                     gameObject.SetActive(true);
                     StartCoroutine(Spawn());

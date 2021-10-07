@@ -15,8 +15,7 @@ public class Pool : MonoBehaviour
     public List<PoolItem> items;
     public List<GameObject> pooledItems;
 
-    // List<Vector2> itemsVelocity;
-    Stack<Vector2> itemsVelocity;
+    Queue<Vector2> itemsVelocity;
 
     [SerializeField] GameObject parent;
 
@@ -34,7 +33,7 @@ public class Pool : MonoBehaviour
         return null;
     }
 
-    public int CountActiveObjects(string tag)
+    public int ActiveObjectsCount(string tag)
     {
         int count = 0;
 
@@ -61,21 +60,21 @@ public class Pool : MonoBehaviour
 
     public void FreezeActiveObjects()
     {
-        itemsVelocity = new Stack<Vector2>();
+        itemsVelocity = new Queue<Vector2>();
 
         foreach (GameObject obj in pooledItems)
             if (obj.activeInHierarchy)
             {
-                itemsVelocity.Push(obj.GetComponent<Rigidbody2D>().velocity);
+                itemsVelocity.Enqueue(obj.GetComponent<Rigidbody2D>().velocity);
                 obj.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
             }
     }
 
     public void UnfreezeActiveObjects()
     {
-        for (int i = pooledItems.Count - 1; i >= 0; i--)
-            if (pooledItems[i].activeInHierarchy)
-                pooledItems[i].GetComponent<Rigidbody2D>().velocity = itemsVelocity.Pop();
+        foreach (GameObject obj in pooledItems)
+            if (obj.activeInHierarchy)
+                obj.GetComponent<Rigidbody2D>().velocity = itemsVelocity.Dequeue();
     }
 
     void Start()

@@ -5,10 +5,11 @@ public class Bullet : MonoBehaviour
     float maxDistance;              //  расстояние, преодолев которое пуля станет неактивной
     float totalDistance = 0;        //  пройденная дистанция
     Vector2 controlPoint;           //  стартовый вектор для вычисления дистанции
-    float screenHalfWidthInUnits, screenHalfHeightInUnits;  //  границы видимости
     
     Rigidbody2D bulletRb;
     [SerializeField] float speed = .01f;
+
+    GameManager gameManager;
 
     public void Fire()
     {
@@ -22,10 +23,9 @@ public class Bullet : MonoBehaviour
     {
         bulletRb = GetComponent<Rigidbody2D>();
 
-        screenHalfWidthInUnits = GameManager.screenHalfWidthInUnits;
-        screenHalfHeightInUnits = GameManager.screenHalfHeightInUnits;
+        maxDistance = GameManager.screenHalfWidthInUnits * 2;    //  максимальная дальность по условию = ширине экрана
 
-        maxDistance = screenHalfWidthInUnits * 2;    //  максимальная дальность по условию = ширине экрана
+        gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
     }
 
     void Update()
@@ -46,15 +46,7 @@ public class Bullet : MonoBehaviour
         float distance = Vector2.Distance(controlPoint, transform.position);
         totalDistance += distance;
 
-        if (transform.position.y > screenHalfHeightInUnits)
-            transform.position = new Vector2(transform.position.x, -screenHalfHeightInUnits);
-        else if (transform.position.y < -screenHalfHeightInUnits)
-            transform.position = new Vector2(transform.position.x, screenHalfHeightInUnits);
-
-        if (transform.position.x > screenHalfWidthInUnits)
-            transform.position = new Vector2(-screenHalfWidthInUnits, transform.position.y);
-        else if (transform.position.x < -screenHalfWidthInUnits)
-            transform.position = new Vector2(screenHalfWidthInUnits, transform.position.y);
+        gameManager.InvisibilityHandling(transform);
 
         controlPoint = transform.position;
     }
