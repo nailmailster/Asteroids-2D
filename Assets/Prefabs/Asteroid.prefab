@@ -265,7 +265,7 @@ MonoBehaviour:
   direction: {x: 0, y: 0, z: 0}
   initForce: 0
   velocity: {x: 0, y: 0}
-  burstVFX: {fileID: 5962928442545056735, guid: 7996b728febb7844b9ab2056ebd388be, type: 3}
+  burstVFX: {fileID: 3983849553314210012, guid: c67462bf21c28074b8bd5d92011ad3d2, type: 3}
 --- !u!50 &2354903553371243896
 Rigidbody2D:
   serializedVersion: 4

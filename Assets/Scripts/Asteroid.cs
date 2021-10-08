@@ -51,6 +51,7 @@ public class Asteroid : MonoBehaviour
         if (other.CompareTag("Bullet"))
         {
             other.gameObject.SetActive(false);
+
             Vector2 velocity = GetComponent<Rigidbody2D>().velocity;
             gameObject.SetActive(false);
 

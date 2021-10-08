@@ -16,16 +16,23 @@ public class Player : MonoBehaviour
     [SerializeField] float shotsInterval = 1;
     [SerializeField] int shotsLimit = 3;
 
-    [SerializeField] ParticleSystem burstVFX;
+    [Header("Effects")]
+    [SerializeField] ParticleSystem explosionVFX;
+    [SerializeField] AudioSource explosionSFX;
+    [SerializeField] AudioSource thrustSFX;
 
     GameManager gameManager;
 
     bool isUndestroyable;
 
+    AudioSource fireSFX;
+
     private void Awake()
     {
         playerRb = GetComponent<Rigidbody2D>();
         colliderYBound = GetComponent<Collider2D>().bounds.extents.y;
+
+        fireSFX = GetComponent<AudioSource>();
 
         gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
     }
@@ -62,21 +69,26 @@ public class Player : MonoBehaviour
             verticalInput = 0;
 
         if (Input.GetKeyDown(KeyCode.Space))
-        {
-            if (shotsMadeInInterval < shotsLimit)
-            {
-                GameObject b = Pool.singleton.Get("Bullet");
-                if (b != null)
-                {
-                    b.transform.position = transform.position;
-                    b.transform.rotation = transform.rotation;
-                    b.SetActive(true);
-                    b.GetComponent<Bullet>().Fire();
+            ShotIfInInterval();
+    }
 
-                    shotsMadeInInterval++;
-                    if (shotsMadeInInterval == 1)
-                        StartCoroutine(Countdown(shotsInterval));
-                }
+    void ShotIfInInterval()
+    {
+        if (shotsMadeInInterval < shotsLimit)
+        {
+            GameObject b = Pool.singleton.Get("Bullet");
+            if (b != null)
+            {
+                fireSFX.Play();
+
+                b.transform.position = transform.position;
+                b.transform.rotation = transform.rotation;
+                b.SetActive(true);
+                b.GetComponent<Bullet>().Fire();
+
+                shotsMadeInInterval++;
+                if (shotsMadeInInterval == 1)
+                    StartCoroutine(Countdown(shotsInterval));
             }
         }
     }
@@ -88,6 +100,10 @@ public class Player : MonoBehaviour
             playerRb.AddForce(transform.up * verticalInput * thrustForce * Time.fixedDeltaTime);
             if (playerRb.velocity.magnitude > maxSpeed)
                 playerRb.velocity = Vector2.ClampMagnitude(playerRb.velocity, maxSpeed);
+            else
+            {
+                Instantiate(thrustSFX, transform.position, transform.rotation).Play();
+            }
         }
 
         playerRb.AddTorque(horizontalInput * -torqueForce * Time.fixedDeltaTime);
@@ -112,8 +128,8 @@ public class Player : MonoBehaviour
         {
             if (other.CompareTag("Asteroid"))
             {
-                burstVFX.transform.position = transform.position;
-                burstVFX.Play();
+                Instantiate(explosionVFX, transform.position, transform.rotation).Play();
+                Instantiate(explosionSFX, transform.position, transform.rotation).Play();
 
                 gameObject.SetActive(false);
 
