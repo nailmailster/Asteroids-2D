@@ -43,6 +43,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] AudioSource mediumExplosionSFX;
     [SerializeField] AudioSource largeExplosionSFX;
 
+    [Header("UFO")]
+    [SerializeField] GameObject enemy;
+
     private void Awake()
     {
         playerRb = player.GetComponent<Rigidbody2D>();
@@ -97,6 +100,17 @@ public class GameManager : MonoBehaviour
         isGamePaused = false;
 
         Time.timeScale = 1;
+
+        StartCoroutine(SpawnEnemyRoutine());
+    }
+
+    IEnumerator SpawnEnemyRoutine()
+    {
+        while (!isGameOver)
+        {
+            yield return new WaitForSeconds(Random.Range(10, 20));
+            Instantiate(enemy);
+        }
     }
 
     void StartLevel()

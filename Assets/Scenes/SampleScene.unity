@@ -287,6 +287,7 @@ MonoBehaviour:
   initLives: 100
   startingAsteroidsAmount: 2
   isGameOver: 1
+  isGamePaused: 0
   player: {fileID: 3152714282684364001}
   asteroidMinForce: 1
   asteroidMaxForce: 7
@@ -299,6 +300,7 @@ MonoBehaviour:
   smallExplosionSFX: {fileID: 362028765048716261, guid: 3dcbe3ad7b8deda45934054160bc2d1c, type: 3}
   mediumExplosionSFX: {fileID: 8888582618194887489, guid: 3b59b58019e8ca24e8ad4f5b47f79757, type: 3}
   largeExplosionSFX: {fileID: 6151103169713325940, guid: 9a7afa86574ceb04ea554105fa738aad, type: 3}
+  enemy: {fileID: 6036611667978182202, guid: 38d2a329c5db7a14c901a61908ea57eb, type: 3}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0

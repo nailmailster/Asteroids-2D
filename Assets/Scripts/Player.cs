@@ -141,10 +141,6 @@ public class Player : MonoBehaviour
 
                 gameObject.SetActive(false);
 
-                // other.gameObject.SetActive(false);
-                // gameManager.PlayAsteroidExplosionVFX(other.gameObject.transform.position, other.gameObject.transform.rotation);
-                // AsteroidsCalibre calibre = other.GetComponent<Asteroid>().calibre;
-                // gameManager.PlayAsteroidExplosionSFX(calibre);
                 Vector2 velocity = other.GetComponent<Rigidbody2D>().velocity;
                 other.gameObject.SetActive(false);
                 gameManager.AddScore(other.gameObject, velocity, true);
