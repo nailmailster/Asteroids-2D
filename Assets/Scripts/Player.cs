@@ -6,6 +6,7 @@ public class Player : MonoBehaviour
     Rigidbody2D playerRb;
     public static float colliderYBound;
 
+    [Header("Settings")]
     [SerializeField] float thrustForce = 150;
     [SerializeField] float maxSpeed = 5;
     [SerializeField] float torqueForce = 50;
@@ -18,21 +19,19 @@ public class Player : MonoBehaviour
 
     [Header("Effects")]
     [SerializeField] ParticleSystem explosionVFX;
+    [Space(5)]
     [SerializeField] AudioSource explosionSFX;
     [SerializeField] AudioSource thrustSFX;
+    [SerializeField] AudioSource fireSFX;
 
     GameManager gameManager;
 
     bool isUndestroyable;
 
-    AudioSource fireSFX;
-
     private void Awake()
     {
         playerRb = GetComponent<Rigidbody2D>();
         colliderYBound = GetComponent<Collider2D>().bounds.extents.y;
-
-        fireSFX = GetComponent<AudioSource>();
 
         gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
     }
@@ -67,8 +66,16 @@ public class Player : MonoBehaviour
         verticalInput = Input.GetAxis("Vertical");
         if (verticalInput < 0)
             verticalInput = 0;
+        if (verticalInput > 0)
+        {
+            if (!thrustSFX.isPlaying)
+                thrustSFX.Play();
+            thrustSFX.volume = verticalInput;
+        }
+        else
+            thrustSFX.Stop();
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && !gameManager.isGamePaused)
             ShotIfInInterval();
     }
 
@@ -100,10 +107,6 @@ public class Player : MonoBehaviour
             playerRb.AddForce(transform.up * verticalInput * thrustForce * Time.fixedDeltaTime);
             if (playerRb.velocity.magnitude > maxSpeed)
                 playerRb.velocity = Vector2.ClampMagnitude(playerRb.velocity, maxSpeed);
-            else
-            {
-                Instantiate(thrustSFX, transform.position, transform.rotation).Play();
-            }
         }
 
         playerRb.AddTorque(horizontalInput * -torqueForce * Time.fixedDeltaTime);
@@ -128,10 +131,23 @@ public class Player : MonoBehaviour
         {
             if (other.CompareTag("Asteroid"))
             {
-                Instantiate(explosionVFX, transform.position, transform.rotation).Play();
-                Instantiate(explosionSFX, transform.position, transform.rotation).Play();
+                ParticleSystem vfx = Instantiate(explosionVFX, transform.position, transform.rotation);
+                vfx.Play();
+                Destroy(vfx.gameObject, vfx.main.duration);
+
+                AudioSource sfx = Instantiate(explosionSFX, transform.position, transform.rotation);
+                sfx.Play();
+                Destroy(sfx.gameObject, sfx.clip.length);
 
                 gameObject.SetActive(false);
+
+                // other.gameObject.SetActive(false);
+                // gameManager.PlayAsteroidExplosionVFX(other.gameObject.transform.position, other.gameObject.transform.rotation);
+                // AsteroidsCalibre calibre = other.GetComponent<Asteroid>().calibre;
+                // gameManager.PlayAsteroidExplosionSFX(calibre);
+                Vector2 velocity = other.GetComponent<Rigidbody2D>().velocity;
+                other.gameObject.SetActive(false);
+                gameManager.AddScore(other.gameObject, velocity, true);
 
                 StopCoroutine("Countdown");
                 shotsMadeInInterval = 0;

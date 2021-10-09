@@ -13,17 +13,15 @@ public enum AsteroidsCalibre
 public class Asteroid : MonoBehaviour
 {
     Rigidbody2D asteroidRb;
-    public static float maxForce = 7;
-    public AsteroidsCalibre calibre;
-    public static float deflectionAngle = 45;
+    [HideInInspector] public AsteroidsCalibre calibre;
 
-    public Vector3 initPos;
-    public Vector3 direction;
-    public float initForce;
+    [HideInInspector] public Vector3 initPos;
+    [HideInInspector] public Vector3 direction;
+    [HideInInspector] public float initForce;
 
-    public Vector2 velocity;
+    [HideInInspector] public Vector2 velocity;
 
-    GameManager gameManager;
+    [HideInInspector] GameManager gameManager;
 
     private void Awake()
     {

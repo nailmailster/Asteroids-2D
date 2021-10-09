@@ -6,31 +6,42 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    [Header("Game Settings")]
     [SerializeField] int initLives = 3;
+    [SerializeField] int startingAsteroidsAmount = 2;
+    public static float screenHalfHeightInUnits, screenHalfWidthInUnits;    //  границы экрана
+    [HideInInspector] public bool isGameOver = false;
+    [HideInInspector] public bool isGamePaused = false;
+
     int lives;
     int score = 0;
-    [SerializeField] TextMeshProUGUI livesText;
-    [SerializeField] TextMeshProUGUI scoreText;
-    [SerializeField] Button newGameButton;
-    [SerializeField] Button resumeGameButton;
+    int asteroidsAmount;
 
+    [Header("Player Settings")]
     [SerializeField] GameObject player;
+
     Rigidbody2D playerRb;
     Vector2 playerVelocity;
     float playerAngularVelocity;
 
-    public static float screenHalfHeightInUnits, screenHalfWidthInUnits;    //  границы экрана
+    [Header("Asteroids Settings")]
+    [SerializeField] float asteroidMinForce = 1;
+    [SerializeField] float asteroidMaxForce = 7;
+    [SerializeField] float fragmentsDeflectionAngle = 45;
 
-    [SerializeField] int startingAsteroidsAmount = 2;
-    int asteroidsAmount;
-
-    public bool isGameOver = false;
+    [Header("UI")]
+    [SerializeField] TextMeshProUGUI livesText;
+    [SerializeField] TextMeshProUGUI scoreText;
+    [Space(5)]
+    [SerializeField] Button newGameButton;
+    [SerializeField] Button resumeGameButton;
 
     [Header("Effects")]
     [SerializeField] ParticleSystem asteroidExplosionVFX;
-    [SerializeField] AudioSource smallExplosion;
-    [SerializeField] AudioSource mediumExplosion;
-    [SerializeField] AudioSource largeExplosion;
+    [Space(5)]
+    [SerializeField] AudioSource smallExplosionSFX;
+    [SerializeField] AudioSource mediumExplosionSFX;
+    [SerializeField] AudioSource largeExplosionSFX;
 
     private void Awake()
     {
@@ -57,6 +68,8 @@ public class GameManager : MonoBehaviour
         resumeGameButton.gameObject.SetActive(true);
         newGameButton.gameObject.SetActive(true);
 
+        isGamePaused = true;
+
         Time.timeScale = 0;
     }
 
@@ -64,6 +77,8 @@ public class GameManager : MonoBehaviour
     {
         resumeGameButton.gameObject.SetActive(false);
         newGameButton.gameObject.SetActive(false);
+
+        isGamePaused = false;
 
         Time.timeScale = 1;
     }
@@ -78,6 +93,10 @@ public class GameManager : MonoBehaviour
         resumeGameButton.gameObject.SetActive(false);
         Pool.singleton.DeactivateAllActiveObjects();
         StartLevel();
+
+        isGamePaused = false;
+
+        Time.timeScale = 1;
     }
 
     void StartLevel()
@@ -105,16 +124,16 @@ public class GameManager : MonoBehaviour
         newGameButton.gameObject.SetActive(true);
     }
 
-    public void AddScore(GameObject parentAsteroid, Vector2 parentVelocity)
+    public void AddScore(GameObject parentAsteroid, Vector2 parentVelocity, bool collisionWithPlayer = false)
     {
-        Instantiate(asteroidExplosionVFX, parentAsteroid.transform.position, parentAsteroid.transform.rotation).Play();
-
         Asteroid parentScript = parentAsteroid.GetComponent<Asteroid>();
         score += (int)parentScript.calibre;
 
-        if (parentScript.calibre == AsteroidsCalibre.Small)
+        PlayAsteroidExplosionVFX(parentAsteroid.transform.position, parentAsteroid.transform.rotation);
+        PlayAsteroidExplosionSFX(parentScript.calibre);
+
+        if (parentScript.calibre == AsteroidsCalibre.Small || collisionWithPlayer)
         {
-            Instantiate(smallExplosion, parentAsteroid.transform.position, parentAsteroid.transform.rotation).Play();
             if (Pool.singleton.ActiveObjectsCount("Asteroid") == 0)
             {
                 asteroidsAmount++;
@@ -123,15 +142,35 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            if (parentScript.calibre == AsteroidsCalibre.Large)
-                Instantiate(largeExplosion, parentAsteroid.transform.position, parentAsteroid.transform.rotation).Play();
-            if (parentScript.calibre == AsteroidsCalibre.Medium)
-                Instantiate(mediumExplosion, parentAsteroid.transform.position, parentAsteroid.transform.rotation).Play();
-
             AsteroidsCalibre parentCalibre = parentScript.calibre;
-            float speed = Random.Range(1, Asteroid.maxForce);
-            SpawnChildAsteroid(parentAsteroid, parentScript, parentVelocity, 45, parentCalibre, speed);
-            SpawnChildAsteroid(parentAsteroid, parentScript, parentVelocity, -45, parentCalibre, speed);
+            float speed = Random.Range(asteroidMinForce, asteroidMaxForce);
+            SpawnChildAsteroid(parentAsteroid, parentScript, parentVelocity, fragmentsDeflectionAngle, parentCalibre, speed);
+            SpawnChildAsteroid(parentAsteroid, parentScript, parentVelocity, -fragmentsDeflectionAngle, parentCalibre, speed);
+        }
+    }
+
+    public void PlayAsteroidExplosionVFX(Vector3 position, Quaternion rotation)
+    {
+        ParticleSystem vfx = Instantiate(asteroidExplosionVFX, position, rotation);
+        vfx.Play();
+        Destroy(vfx.gameObject, vfx.main.duration);
+    }
+
+    public void PlayAsteroidExplosionSFX(AsteroidsCalibre calibre)
+    {
+        AudioSource sfx = null;
+
+        if (calibre == AsteroidsCalibre.Large)
+            sfx = Instantiate(largeExplosionSFX);
+        else if (calibre == AsteroidsCalibre.Medium)
+            sfx = Instantiate(mediumExplosionSFX);
+        else if (calibre == AsteroidsCalibre.Small)
+            sfx = Instantiate(smallExplosionSFX);
+
+        if (sfx != null)
+        {
+            sfx.Play();
+            Destroy(sfx.gameObject, sfx.clip.length);
         }
     }
 
@@ -181,7 +220,7 @@ public class GameManager : MonoBehaviour
             newAsteroid.calibre = calibre;
             newAsteroid.initPos = GenerateRandomPos();
             newAsteroid.direction = Random.insideUnitCircle.normalized;
-            newAsteroid.initForce = Random.Range(1, Asteroid.maxForce);
+            newAsteroid.initForce = Random.Range(asteroidMinForce, asteroidMaxForce);
 
             a.SetActive(true);
         }

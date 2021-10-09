@@ -280,7 +280,9 @@ MonoBehaviour:
   torqueForce: 100
   shotsInterval: 1
   shotsLimit: 3
-  burstVFX: {fileID: 0}
+  explosionVFX: {fileID: 3956597278231058551, guid: 238b5f6465b679b4fa3c2a40ff50c58b, type: 3}
+  explosionSFX: {fileID: 362028765048716261, guid: 3dcbe3ad7b8deda45934054160bc2d1c, type: 3}
+  thrustSFX: {fileID: 4746354770161935347, guid: 2c025c953afa6054e95d679381439d79, type: 3}
 --- !u!82 &3152714282684364002
 AudioSource:
   m_ObjectHideFlags: 0
