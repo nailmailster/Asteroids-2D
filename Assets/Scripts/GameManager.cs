@@ -108,7 +108,7 @@ public class GameManager : MonoBehaviour
     {
         while (!isGameOver)
         {
-            yield return new WaitForSeconds(Random.Range(10, 20));
+            yield return new WaitForSeconds(Random.Range(30, 51));
             Instantiate(enemy);
         }
     }
@@ -161,6 +161,11 @@ public class GameManager : MonoBehaviour
             SpawnChildAsteroid(parentAsteroid, parentScript, parentVelocity, fragmentsDeflectionAngle, parentCalibre, speed);
             SpawnChildAsteroid(parentAsteroid, parentScript, parentVelocity, -fragmentsDeflectionAngle, parentCalibre, speed);
         }
+    }
+
+    public void AddScoreForUFO()
+    {
+        score += 200;
     }
 
     public void PlayAsteroidExplosionVFX(Vector3 position, Quaternion rotation)

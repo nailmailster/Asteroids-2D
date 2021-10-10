@@ -4,22 +4,58 @@ using UnityEngine;
 
 public class UFO : MonoBehaviour
 {
+    public static float colliderYBound;
+
     List<Vector2> path = new List<Vector2>();
     int pathIndex = 0;
     [SerializeField] float speed;
     [SerializeField] AudioSource sirenSFX;
     [SerializeField] AudioSource fireSFX;
 
+    GameManager gameManager;
+
+    GameObject player;
+
     private void Awake()
     {
+        colliderYBound = GetComponent<Collider2D>().bounds.extents.y;
+
         GenerateRandomPath();
         speed = CalculateSpeed();
+
+        gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
+
+        player = GameObject.Find("Ship");
     }
 
     void Start()
     {
         transform.position = path[pathIndex];
         pathIndex++;
+    }
+
+    IEnumerator ShotRoutine()
+    {
+        while (!gameManager.isGameOver)
+        {
+            yield return new WaitForSeconds(Random.Range(2, 6));
+            Fire();
+        }
+    }
+
+    void Fire()
+    {
+        GameObject b = Pool.singleton.Get("Bullet");
+        if (b != null)
+        {
+            fireSFX.Play();
+
+            b.tag = "Enemy Bullet";
+            b.transform.position = transform.position;
+            b.GetComponent<SpriteRenderer>().color = Color.red;
+            b.SetActive(true);
+            b.GetComponent<Bullet>().FireUFO(player.transform.position);
+        }
     }
 
     void Update()
@@ -91,8 +127,25 @@ public class UFO : MonoBehaviour
         for (int i = 0; i < path.Count - 1; i++)
             distance += Vector2.Distance(path[i], path[i + 1]);
         
-        Debug.Log(distance);
-
         return distance / 10;
+    }
+
+    private void OnBecameVisible()
+    {
+        StartCoroutine(ShotRoutine());
+    }
+
+    private void OnBecameInvisible()
+    {
+        StopCoroutine(ShotRoutine());
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Bullet"))
+        {
+            Destroy(gameObject);
+            other.gameObject.SetActive(false);
+        }
     }
 }

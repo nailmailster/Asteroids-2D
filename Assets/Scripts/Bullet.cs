@@ -14,9 +14,21 @@ public class Bullet : MonoBehaviour
     public void Fire()
     {
         transform.Translate(Vector2.up * Player.colliderYBound, Space.Self);    //  сдвинем пулю в направлении выстрела за границу коллайдера корабля
+
         controlPoint = transform.position;                                      //  запомним положение пули в момент выстрела
 
         bulletRb.AddRelativeForce(Vector2.up * speed, ForceMode2D.Impulse);     //  Bang!
+    }
+
+    public void FireUFO(Vector3 playerPosition)
+    {
+        Vector3 directionToPlayer = (playerPosition - transform.position).normalized;
+        transform.up = directionToPlayer;
+        transform.Translate(Vector2.up * Player.colliderYBound, Space.Self);    //  сдвинем пулю в направлении выстрела за границу коллайдера корабля
+
+        controlPoint = transform.position;                                      //  запомним положение пули в момент выстрела
+
+        bulletRb.AddForce(directionToPlayer * speed, ForceMode2D.Impulse);     //  Bang!
     }
 
     private void Awake()

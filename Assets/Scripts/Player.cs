@@ -155,6 +155,28 @@ public class Player : MonoBehaviour
                     StartCoroutine(Spawn());
                 }
             }
+            else if (other.CompareTag("Enemy Bullet"))
+            {
+                ParticleSystem vfx = Instantiate(explosionVFX, transform.position, transform.rotation);
+                vfx.Play();
+                Destroy(vfx.gameObject, vfx.main.duration);
+
+                AudioSource sfx = Instantiate(explosionSFX, transform.position, transform.rotation);
+                sfx.Play();
+                Destroy(sfx.gameObject, sfx.clip.length);
+
+                gameObject.SetActive(false);
+
+                StopCoroutine("Countdown");
+                shotsMadeInInterval = 0;
+
+                if (gameManager.DecreaseLives(this.gameObject) > 0)
+                {
+                    gameObject.transform.position = gameManager.GenerateRandomPos();
+                    gameObject.SetActive(true);
+                    StartCoroutine(Spawn());
+                }
+            }
         }
     }
 
