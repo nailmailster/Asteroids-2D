@@ -9,9 +9,10 @@ public class Player : MonoBehaviour
     [Header("Settings")]
     [SerializeField] float thrustForce = 150;
     [SerializeField] float maxSpeed = 5;
-    [SerializeField] float torqueForce = 50;
+    // [SerializeField] float torqueForce = 50;
+    [SerializeField] float torqueSpeed = 50;
 
-    float horizontalInput, verticalInput;
+    float horizontalInput, verticalInput, verticalMouseInput;
 
     int shotsMadeInInterval = 0;
     [SerializeField] float shotsInterval = 1;
@@ -62,21 +63,53 @@ public class Player : MonoBehaviour
 
     void GetInput()
     {
-        horizontalInput = Input.GetAxis("Horizontal");
-        verticalInput = Input.GetAxis("Vertical");
-        if (verticalInput < 0)
-            verticalInput = 0;
-        if (verticalInput > 0)
+        if (!gameManager.isGamePaused)
         {
-            if (!thrustSFX.isPlaying)
-                thrustSFX.Play();
-            thrustSFX.volume = verticalInput;
-        }
-        else
-            thrustSFX.Stop();
+            horizontalInput = Input.GetAxis("Horizontal");
 
-        if (Input.GetKeyDown(KeyCode.Space) && !gameManager.isGamePaused)
-            ShotIfInInterval();
+            verticalInput = Input.GetAxis("Vertical");
+            if (!GameManager.keyboardControl)
+            {
+                verticalMouseInput = Input.GetAxis("Vertical Mouse");
+                if (verticalMouseInput > verticalInput)
+                    verticalInput = verticalMouseInput;
+            }
+            if (verticalInput < 0)
+                verticalInput = 0;
+            if (verticalInput > 0)
+            {
+                if (!thrustSFX.isPlaying)
+                    thrustSFX.Play();
+                thrustSFX.volume = verticalInput;
+            }
+            else
+                thrustSFX.Stop();
+
+            if (!GameManager.keyboardControl)
+            {
+                Torque();
+
+                if (Input.GetButtonDown("Fire Mouse"))
+                    ShotIfInInterval();
+            }
+            else
+            {
+                if (horizontalInput != 0)
+                    transform.Rotate(Vector3.forward, horizontalInput * -torqueSpeed * Time.fixedDeltaTime);
+
+                if (Input.GetButtonDown("Fire Keyboard"))
+                    ShotIfInInterval();
+            }
+        }
+    }
+
+    void Torque()
+    {
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        float angle = Mathf.Atan2(mouseWorldPos.y - transform.position.y,
+                                mouseWorldPos.x -transform.position.x ) * Mathf.Rad2Deg - 90;
+        Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, angle));
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, torqueSpeed * Time.deltaTime);
     }
 
     void ShotIfInInterval()
@@ -109,8 +142,9 @@ public class Player : MonoBehaviour
                 playerRb.velocity = Vector2.ClampMagnitude(playerRb.velocity, maxSpeed);
         }
 
-        playerRb.AddTorque(horizontalInput * -torqueForce * Time.fixedDeltaTime);
-    }
+        //  Инерционное вращение - в оригинале не так, поэтому переделал
+        // playerRb.AddTorque(horizontalInput * -torqueForce * Time.fixedDeltaTime);
+     }
 
     void CheckVisibility()
     {

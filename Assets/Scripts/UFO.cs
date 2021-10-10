@@ -146,6 +146,7 @@ public class UFO : MonoBehaviour
         {
             Destroy(gameObject);
             other.gameObject.SetActive(false);
+            gameManager.AddScoreForUFO();
         }
     }
 }

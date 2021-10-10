@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
     public static float screenHalfHeightInUnits, screenHalfWidthInUnits;    //  границы экрана
     [HideInInspector] public bool isGameOver = false;
     [HideInInspector] public bool isGamePaused = false;
+    public static bool keyboardControl = true;
 
     int lives;
     int score = 0;
@@ -35,6 +36,7 @@ public class GameManager : MonoBehaviour
     [Space(5)]
     [SerializeField] Button newGameButton;
     [SerializeField] Button resumeGameButton;
+    [SerializeField] Button gameControlButton;
 
     [Header("Effects")]
     [SerializeField] ParticleSystem asteroidExplosionVFX;
@@ -62,14 +64,15 @@ public class GameManager : MonoBehaviour
 
     private void OnGUI()
     {
-        livesText.SetText("Попыток: " + lives);
-        scoreText.SetText("Баллов: " + score);
+        livesText.SetText("Жизни: " + lives);
+        scoreText.SetText("Очки: " + score);
     }
 
     void PauseGame()
     {
         resumeGameButton.gameObject.SetActive(true);
         newGameButton.gameObject.SetActive(true);
+        gameControlButton.gameObject.SetActive(true);
 
         isGamePaused = true;
 
@@ -80,6 +83,7 @@ public class GameManager : MonoBehaviour
     {
         resumeGameButton.gameObject.SetActive(false);
         newGameButton.gameObject.SetActive(false);
+        gameControlButton.gameObject.SetActive(false);
 
         isGamePaused = false;
 
@@ -94,6 +98,7 @@ public class GameManager : MonoBehaviour
         score = 0;
         newGameButton.gameObject.SetActive(false);
         resumeGameButton.gameObject.SetActive(false);
+        gameControlButton.gameObject.SetActive(false);
         Pool.singleton.DeactivateAllActiveObjects();
         StartLevel();
 
@@ -264,5 +269,11 @@ public class GameManager : MonoBehaviour
             _transform.position = new Vector2(-screenHalfWidthInUnits, _transform.position.y);
         else if (_transform.position.x < -screenHalfWidthInUnits)
             _transform.position = new Vector2(screenHalfWidthInUnits, _transform.position.y);
+    }
+
+    public void SwitchGameControl()
+    {
+        keyboardControl = !keyboardControl;
+        gameControlButton.GetComponentInChildren<Text>().text = keyboardControl ? "Управление: клавиатура" : "Управление: клавиатура + мышь";
     }
 }
