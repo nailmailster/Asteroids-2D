@@ -284,7 +284,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61da5c5306680ae489d3e89ca895e51a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initLives: 100
+  initLives: 4
   startingAsteroidsAmount: 2
   isGameOver: 1
   isGamePaused: 0
